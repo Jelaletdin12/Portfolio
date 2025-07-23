@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://jelaletdinch.vercel.app
+
+# Sitemaps
+Sitemap: https://jelaletdinch.vercel.app/sitemap.xml

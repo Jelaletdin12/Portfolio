@@ -11,9 +11,13 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Portfolio | Premium Developer Experience",
-  description: "Crafting exceptional digital experiences with precision and creativity.",
+  title: "Jelaletdin Charymuhammedow | Frontend Developer Portfolio",
+  description: "I'm Jelaletdin Charymuhammedow, a frontend developer crafting fast, responsive and creative web experiences using React, Vue, and Next.js.",
+  keywords: ["Jelaletdin", "Charymuhammedow", "frontend developer", "React developer", "Next.js", "portfolio", "web developer"],
+  authors: [{ name: "Jelaletdin Charymuhammedow" }],
+  creator: "Jelaletdin Charymuhammedow",
 };
+
 
 export default function RootLayout({
   children,

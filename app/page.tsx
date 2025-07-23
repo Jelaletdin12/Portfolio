@@ -7,7 +7,6 @@ import ContactSection from "@/components/contact-section";
 import Footer from "@/components/footer";
 
 export default function Home() {
-  console.log("Home page rendered");
   
   return (
     <div className="min-h-screen">

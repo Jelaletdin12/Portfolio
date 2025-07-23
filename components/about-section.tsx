@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import { Code, Palette, Rocket, Users } from "lucide-react";
 
 const AboutSection = () => {
-  console.log("AboutSection component rendered");
 
   const highlights = [
     {
@@ -36,14 +35,18 @@ const AboutSection = () => {
   ];
 
   const stats = [
-    { number: "50+", label: "Projects Completed" },
-    { number: "3+", label: "Years Experience" },
+    { number: "8+", label: "Projects Completed" },
+    { number: "2+", label: "Years Experience" },
     { number: "15+", label: "Technologies" },
-    { number: "100%", label: "Client Satisfaction" },
+    { number: "99%", label: "Client Satisfaction" },
   ];
 
   return (
-    <section id="about" className="py-24 relative overflow-hidden">
+    <section
+      id="about"
+      aria-label="About Me Section"
+      className="py-24 relative overflow-hidden"
+    >
       {/* Background Elements */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute top-0 right-0 w-96 h-96 bg-luxury-gold/5 rounded-full blur-3xl" />
@@ -63,9 +66,9 @@ const AboutSection = () => {
               About <span className="text-gradient">Me</span>
             </h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              I'm a passionate frontend developer dedicated to creating digital
-              experiences that combine beautiful design with powerful
-              functionality.
+              I'm a passionate <strong>frontend developer </strong>
+              dedicated to creating digital experiences that combine beautiful
+              design with powerful functionality.
             </p>
           </motion.div>
 

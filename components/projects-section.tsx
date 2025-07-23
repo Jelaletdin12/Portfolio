@@ -8,7 +8,7 @@ import { ExternalLink, Github, Play } from "lucide-react";
 import Image from "next/image";
 
 const ProjectsSection = () => {
-  console.log("ProjectsSection component rendered");
+  
 
   const projects = [
     {
@@ -17,7 +17,7 @@ const ProjectsSection = () => {
       description: "A fully responsive front-end for a modern e-commerce platform, built with performance and scalability in mind.",
       image: "./MM.png",
       technologies: ["React", "SCSS", "Ant Design", "Redux Toolkit", "Vite"],
-      category: "Frontend",
+      category: "E-commerce",
       featured: true,
       links: {
         live: "https://mm.com.tm",
@@ -33,10 +33,10 @@ const ProjectsSection = () => {
     {
       id: 2,
       title: "The Like&Love Project – NFT-Powered Passive Crypto Mining",
-      description: "A decentralized mining platform where users earn LIKE and LOVE tokens via NFTs without using device resources. Includes staking, token conversions, daily rewards, and exclusive gamified experiences.",
+      description: "A decentralized mining platform where users earn LIKE and LOVE tokens via NFTs without using device resources.",
       image: "/token.png",
-      technologies: ["React", "Ant Design", "TensorFlow", "D3.js", "AWS"],
-      category: "Cryptocurrency/Web3",
+      technologies: ["React", "Ant Design", "SCSS"],
+      category: "Landing Website",
       featured: true,
       links: {
         live: "https://site.tonlike.com/",
@@ -53,8 +53,8 @@ const ProjectsSection = () => {
       title: "AR Group Official Website",
       description: "The official website of AR Group. Provides general information about the company, contact details and information about sales points.",
       image: "/ar.png",
-      technologies: ["Next.js", "WebRTC", "Socket.io", "MongoDB", "Node.js"],
-      category: "Company/Corporate Website",
+      technologies: ["Vue.js", "CSS", "Django" ],
+      category: "Landing Website",
       featured: true,
       links: {
         live: "http://argroup.com.tm/",
@@ -66,8 +66,8 @@ const ProjectsSection = () => {
       title: "Sanly.pro Official website",
       description: "A modern, responsive website for Sanly.pro, showcasing their services and portfolio with a focus on user experience and performance.",
       image: "/sanly.png",
-      technologies: ["React Native", "Firebase", "Redux", "Stripe"],
-      category: "Mobile",
+      technologies: ["Vue.js", "Animation"],
+      category: "Landing Website",
       featured: true,
       links: {
         live: "https://sanly-pro.vercel.app/",
@@ -79,8 +79,8 @@ const ProjectsSection = () => {
       title: "Jussplay Official website",
       description: "A secure, transparent voting platform built on blockchain technology ensuring election integrity and voter privacy.",
       image: "/jussplay.png",
-      technologies: ["Solidity", "Web3.js", "React", "Ethereum", "IPFS"],
-      category: "Blockchain",
+      technologies: ["React", "SCSS", "GSAP"],
+      category: "Landing Website",
       featured: false,
       links: {
         github: "https://github.com",
@@ -92,8 +92,8 @@ const ProjectsSection = () => {
       title: "SkySystem - e-commerce platfrom",
       description: "An IoT-based home automation system with voice control, energy monitoring, and intelligent scheduling.",
       image: "/sky.png",
-      technologies: ["Node.js", "MQTT", "React", "Arduino", "AWS IoT"],
-      category: "IoT",
+      technologies: ["React", "Tanstack query", "SCSS"],
+      category: "E-commerce",
       featured: false,
       links: {
         github: "https://github.com"
@@ -104,8 +104,8 @@ const ProjectsSection = () => {
       title: "Telegram app",
       description: "An IoT-based home automation system with voice control, energy monitoring, and intelligent scheduling.",
       image: "/tg.jpg",
-      technologies: ["Node.js", "MQTT", "React", "Arduino", "AWS IoT"],
-      category: "IoT",
+      technologies: ["React", "Framer Motion", "Tailwind"],
+      category: "Telegram",
       featured: false,
       links: {
         github: "https://github.com"
@@ -116,7 +116,7 @@ const ProjectsSection = () => {
       title: "Inventory and Task manager - test project",
       description: "An IoT-based home automation system with voice control, energy monitoring, and intelligent scheduling.",
       image: "/invent.jpg",
-      technologies: ["Node.js", "MQTT", "React", "Arduino", "AWS IoT"],
+      technologies: ["SCSS", "Ant Design", "React"],
       category: "IoT",
       featured: false,
       links: {
@@ -125,7 +125,7 @@ const ProjectsSection = () => {
     }
   ];
 
-  const categories = ["All", "Full Stack", "AI/ML", "SaaS", "Mobile", "Blockchain", "IoT"];
+  const categories = ["All", "E-commer", "Landing Website", "Telegram"];
 
   return (
     <section id="projects" className="py-24 relative overflow-hidden">

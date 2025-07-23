@@ -13,13 +13,11 @@ const Navigation = () => {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    console.log("Navigation component mounted");
     setMounted(true);
-    
+
     const handleScroll = () => {
       const scrolled = window.scrollY > 50;
       setIsScrolled(scrolled);
-      console.log("Scroll event:", { scrolled, scrollY: window.scrollY });
     };
 
     window.addEventListener("scroll", handleScroll);
@@ -35,17 +33,22 @@ const Navigation = () => {
   ];
 
   const scrollToSection = (href: string) => {
-    console.log("Scrolling to section:", href);
     const element = document.querySelector(href);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
+    if (!element) return;
+
+    if (isMobileMenuOpen) {
       setIsMobileMenuOpen(false);
+
+      setTimeout(() => {
+        element.scrollIntoView({ behavior: "smooth" });
+      }, 300);
+    } else {
+      element.scrollIntoView({ behavior: "smooth" });
     }
   };
 
   const toggleTheme = () => {
     const newTheme = theme === "dark" ? "light" : "dark";
-    console.log("Theme toggle:", { from: theme, to: newTheme });
     setTheme(newTheme);
   };
 
@@ -57,9 +60,7 @@ const Navigation = () => {
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled
-          ? "glass-card backdrop-blur-xl shadow-lg"
-          : "bg-transparent"
+        isScrolled ? "glass-card backdrop-blur-xl shadow-lg" : "bg-transparent"
       }`}
     >
       <div className="section-padding py-4">
@@ -87,7 +88,7 @@ const Navigation = () => {
                 {item.label}
               </motion.button>
             ))}
-            
+
             <Button
               variant="ghost"
               size="icon"
@@ -104,18 +105,14 @@ const Navigation = () => {
 
           {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleTheme}
-            >
+            <Button variant="ghost" size="icon" onClick={toggleTheme}>
               {theme === "dark" ? (
                 <Sun className="h-5 w-5" />
               ) : (
                 <Moon className="h-5 w-5" />
               )}
             </Button>
-            
+
             <Button
               variant="ghost"
               size="icon"
