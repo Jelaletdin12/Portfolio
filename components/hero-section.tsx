@@ -2,10 +2,15 @@
 
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Download, ArrowDown, Github, Linkedin, Mail, Send } from "lucide-react";
+import {
+  Download,
+  ArrowDown,
+  Github,
+  Linkedin,
+  Mail,
+  Send,
+} from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
-
 
 const HeroSection = () => {
   console.log("HeroSection component rendered");
@@ -19,14 +24,23 @@ const HeroSection = () => {
   };
 
   const handleDownloadCV = () => {
-    console.log("Download CV clicked");
-    // You can replace this with actual CV download logic
-    alert("CV download would be implemented here");
+    const link = document.createElement("a");
+    link.href = "/Charymuhammedow.pdf"; // public klasöründeki dosya yolu
+    link.download = "Jelaletdin_Charymuhammedov_CV.pdf"; // indirme ismi
+    link.click();
   };
 
   const socialLinks = [
-    { icon: Github, href: "https://github.com/Jelaletdin12/Jelaletdin12", label: "GitHub" },
-    { icon: Linkedin, href: "https://linkedin.com/in/jelaletdin-çarymuhammedow-2b26a92b8", label: "LinkedIn" },
+    {
+      icon: Github,
+      href: "https://github.com/Jelaletdin12/Jelaletdin12",
+      label: "GitHub",
+    },
+    {
+      icon: Linkedin,
+      href: "https://linkedin.com/in/jelaletdin-çarymuhammedow-2b26a92b8",
+      label: "LinkedIn",
+    },
     { icon: Mail, href: "mailto: jcarymuhammedow@gmail.com", label: "Email" },
     { icon: Send, href: "https://t.me/Jelaletdin_Ch", label: "Telegram" },
   ];

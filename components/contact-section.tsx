@@ -13,18 +13,64 @@ import {
   Send,
   Github,
   Linkedin,
-  Twitter,
   Calendar,
   Clock,
   Globe,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useState } from "react";
+import emailjs from "@emailjs/browser";
 
 const ContactSection = () => {
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Email.js konfigürasyonu - Environment variables'dan al
+  const EMAILJS_SERVICE_ID = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
+  const EMAILJS_TEMPLATE_ID = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
+  const EMAILJS_PUBLIC_KEY = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Contact form submitted");
-    toast.success("Message sent! I'll get back to you soon.");
+
+    // Email.js ayarlarını kontrol et
+    if (!EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID || !EMAILJS_PUBLIC_KEY) {
+      toast.error("Email configuration is missing. Please contact me directly via email.");
+      console.error("Missing Email.js configuration. Please check your environment variables.");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+
+    // Email.js'e gönderilecek parametreler
+    const templateParams = {
+      from_name: formData.get("firstName") as string,
+      from_lastname: formData.get("lastName") as string,
+      from_email: formData.get("email") as string,
+      subject: formData.get("subject") as string,
+      message: formData.get("message") as string,
+    };
+
+    try {
+      // Email.js ile email gönderme
+      const response = await emailjs.send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        templateParams,
+        EMAILJS_PUBLIC_KEY
+      );
+
+      console.log("Email sent successfully:", response);
+      toast.success("Message sent successfully! I'll get back to you soon.");
+      form.reset(); // Formu temizle
+    } catch (error) {
+      console.error("Email sending failed:", error);
+      toast.error("Failed to send message. Please try again or contact me directly at jcarymuhammedow@gmail.com");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const contactInfo = [
@@ -63,7 +109,7 @@ const ContactSection = () => {
     },
     {
       icon: Send,
-      name: "Twitter",
+      name: "Telegram",
       url: "https://t.me/Jelaletdin_Ch",
       color: "hover:text-blue-400",
     },
@@ -213,18 +259,22 @@ const ContactSection = () => {
                         <Label htmlFor="firstName">First Name</Label>
                         <Input
                           id="firstName"
+                          name="firstName"
                           placeholder="John"
                           className="bg-background/50 border-luxury-gold/20 focus:border-luxury-gold"
                           required
+                          disabled={isSubmitting}
                         />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="lastName">Last Name</Label>
                         <Input
                           id="lastName"
+                          name="lastName"
                           placeholder="Doe"
                           className="bg-background/50 border-luxury-gold/20 focus:border-luxury-gold"
                           required
+                          disabled={isSubmitting}
                         />
                       </div>
                     </div>
@@ -233,10 +283,12 @@ const ContactSection = () => {
                       <Label htmlFor="email">Email</Label>
                       <Input
                         id="email"
+                        name="email"
                         type="email"
                         placeholder="john@example.com"
                         className="bg-background/50 border-luxury-gold/20 focus:border-luxury-gold"
                         required
+                        disabled={isSubmitting}
                       />
                     </div>
 
@@ -244,9 +296,11 @@ const ContactSection = () => {
                       <Label htmlFor="subject">Subject</Label>
                       <Input
                         id="subject"
+                        name="subject"
                         placeholder="Project Discussion"
                         className="bg-background/50 border-luxury-gold/20 focus:border-luxury-gold"
                         required
+                        disabled={isSubmitting}
                       />
                     </div>
 
@@ -254,19 +308,22 @@ const ContactSection = () => {
                       <Label htmlFor="message">Message</Label>
                       <Textarea
                         id="message"
+                        name="message"
                         placeholder="Tell me about your project..."
                         rows={6}
                         className="bg-background/50 border-luxury-gold/20 focus:border-luxury-gold resize-none"
                         required
+                        disabled={isSubmitting}
                       />
                     </div>
 
                     <Button
                       type="submit"
                       className="w-full luxury-gradient text-black font-semibold py-6 text-lg hover:shadow-2xl hover:shadow-luxury-gold/25 transition-all duration-300"
+                      disabled={isSubmitting}
                     >
                       <Send className="mr-2 h-5 w-5" />
-                      Send Message
+                      {isSubmitting ? "Sending..." : "Send Message"}
                     </Button>
                   </form>
                 </CardContent>
@@ -275,7 +332,8 @@ const ContactSection = () => {
           </div>
 
           {/* Call to Action */}
-          <motion.div
+
+          {/* <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -303,7 +361,9 @@ const ContactSection = () => {
                 </Button>
               </div>
             </Card>
-          </motion.div>
+          </motion.div> */}
+
+
         </div>
       </div>
     </section>
