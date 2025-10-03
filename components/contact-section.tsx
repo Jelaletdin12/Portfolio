@@ -16,45 +16,306 @@ import {
   Calendar,
   Clock,
   Globe,
+  AlertCircle,
+  Shield,
 } from "lucide-react";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import emailjs from "@emailjs/browser";
+
+// ============================================
+// GÜVENLIK KONFİGÜRASYONU
+// ============================================
+const SECURITY_CONFIG = {
+  // Rate limiting
+  MAX_ATTEMPTS: 3,
+  RATE_LIMIT_WINDOW: 60000, // 1 dakika
+  COOLDOWN_PERIOD: 300000, // 5 dakika
+
+  // Input validation
+  MAX_NAME_LENGTH: 50,
+  MAX_EMAIL_LENGTH: 100,
+  MAX_SUBJECT_LENGTH: 150,
+  MAX_MESSAGE_LENGTH: 2000,
+  MIN_MESSAGE_LENGTH: 10,
+
+  // Spam detection patterns
+  SPAM_PATTERNS: [
+    /\b(viagra|cialis|pharmacy|casino|lottery|winner)\b/gi,
+    /\b(click here|buy now|limited time|act now)\b/gi,
+    /(http[s]?:\/\/){2,}/gi, // Multiple URLs
+    /(.)\1{10,}/gi, // Repeated characters
+  ],
+
+  // Suspicious email patterns
+  SUSPICIOUS_EMAIL_PATTERNS: [
+    /@(tempmail|guerrillamail|10minutemail|throwaway)/i,
+    /\+.*\+/g, // Multiple + signs
+  ],
+};
+
+// ============================================
+// GÜVENLIK YARDıMCı FONKSİYONLAR
+// ============================================
+
+// XSS koruması - HTML ve script etiketlerini temizle
+const sanitizeInput = (input: string): string => {
+  return input
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
+    .replace(/<[^>]*>/g, "")
+    .replace(/javascript:/gi, "")
+    .replace(/on\w+\s*=/gi, "")
+    .trim();
+};
+
+// SQL Injection koruması
+const detectSQLInjection = (input: string): boolean => {
+  const sqlPatterns = [
+    /(\bSELECT\b|\bUNION\b|\bINSERT\b|\bUPDATE\b|\bDELETE\b|\bDROP\b)/gi,
+    /(--|#|\/\*|\*\/)/g,
+    /(\bOR\b|\bAND\b)\s+\d+\s*=\s*\d+/gi,
+  ];
+  return sqlPatterns.some((pattern) => pattern.test(input));
+};
+
+// Email validasyonu (RFC 5322 compliant)
+const validateEmail = (email: string): boolean => {
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  return emailRegex.test(email) && email.length <= SECURITY_CONFIG.MAX_EMAIL_LENGTH;
+};
+
+// Telefon numarası validasyonu
+const validatePhone = (phone: string): boolean => {
+  const phoneRegex = /^\+?[\d\s-()]{10,}$/;
+  return phoneRegex.test(phone);
+};
+
+// Spam detection
+const detectSpam = (content: string): boolean => {
+  return SECURITY_CONFIG.SPAM_PATTERNS.some((pattern) => pattern.test(content));
+};
+
+// Şüpheli email adresi kontrolü
+const isSuspiciousEmail = (email: string): boolean => {
+  return SECURITY_CONFIG.SUSPICIOUS_EMAIL_PATTERNS.some((pattern) =>
+    pattern.test(email)
+  );
+};
+
+// Rate limiting için local storage helper
+const getRateLimitData = () => {
+  try {
+    const data = localStorage.getItem("contact_form_attempts");
+    return data ? JSON.parse(data) : { count: 0, timestamp: Date.now() };
+  } catch {
+    return { count: 0, timestamp: Date.now() };
+  }
+};
+
+const setRateLimitData = (count: number, timestamp: number) => {
+  try {
+    localStorage.setItem(
+      "contact_form_attempts",
+      JSON.stringify({ count, timestamp })
+    );
+  } catch {
+    // Silent fail for privacy mode
+  }
+};
+
+// ============================================
+// ANA COMPONENT
+// ============================================
 
 const ContactSection = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isBlocked, setIsBlocked] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
+  const submitTimestampRef = useRef<number>(0);
 
-  // Email.js konfigürasyonu - Environment variables'dan al
+  // Email.js konfigürasyonu
   const EMAILJS_SERVICE_ID = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
   const EMAILJS_TEMPLATE_ID = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
   const EMAILJS_PUBLIC_KEY = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
 
+  // ============================================
+  // RATE LIMITING KONTROLÜ
+  // ============================================
+  const checkRateLimit = (): boolean => {
+    const { count, timestamp } = getRateLimitData();
+    const now = Date.now();
+    const timeDiff = now - timestamp;
+
+    // Cooldown period kontrolü
+    if (count >= SECURITY_CONFIG.MAX_ATTEMPTS && timeDiff < SECURITY_CONFIG.COOLDOWN_PERIOD) {
+      const remainingTime = Math.ceil((SECURITY_CONFIG.COOLDOWN_PERIOD - timeDiff) / 60000);
+      toast.error(`Too many attempts. Please wait ${remainingTime} minutes.`, {
+        icon: <Shield className="w-5 h-5" />,
+      });
+      setIsBlocked(true);
+      return false;
+    }
+
+    // Rate limit window kontrolü
+    if (timeDiff < SECURITY_CONFIG.RATE_LIMIT_WINDOW) {
+      if (count >= SECURITY_CONFIG.MAX_ATTEMPTS) {
+        setRateLimitData(count + 1, timestamp);
+        toast.error("Too many attempts. Please slow down.");
+        return false;
+      }
+      setRateLimitData(count + 1, timestamp);
+    } else {
+      // Yeni window başlat
+      setRateLimitData(1, now);
+    }
+
+    setIsBlocked(false);
+    return true;
+  };
+
+  // ============================================
+  // HONEYPOT ALAN (Bot detection)
+  // ============================================
+  const checkHoneypot = (formData: FormData): boolean => {
+    const honeypot = formData.get("website");
+    if (honeypot && honeypot !== "") {
+      console.warn("Bot detected via honeypot");
+      return false;
+    }
+    return true;
+  };
+
+  // ============================================
+  // FORM VALIDATION
+  // ============================================
+  const validateForm = (formData: FormData): boolean => {
+    const newErrors: Record<string, string> = {};
+    
+    const firstName = sanitizeInput(formData.get("firstName") as string);
+    const lastName = sanitizeInput(formData.get("lastName") as string);
+    const email = sanitizeInput(formData.get("email") as string);
+    const subject = sanitizeInput(formData.get("subject") as string);
+    const message = sanitizeInput(formData.get("message") as string);
+
+    // First Name validation
+    if (!firstName || firstName.length < 2) {
+      newErrors.firstName = "First name must be at least 2 characters";
+    } else if (firstName.length > SECURITY_CONFIG.MAX_NAME_LENGTH) {
+      newErrors.firstName = `First name must be less than ${SECURITY_CONFIG.MAX_NAME_LENGTH} characters`;
+    } else if (!/^[a-zA-Z\s-']+$/.test(firstName)) {
+      newErrors.firstName = "First name contains invalid characters";
+    }
+
+    // Last Name validation
+    if (!lastName || lastName.length < 2) {
+      newErrors.lastName = "Last name must be at least 2 characters";
+    } else if (lastName.length > SECURITY_CONFIG.MAX_NAME_LENGTH) {
+      newErrors.lastName = `Last name must be less than ${SECURITY_CONFIG.MAX_NAME_LENGTH} characters`;
+    } else if (!/^[a-zA-Z\s-']+$/.test(lastName)) {
+      newErrors.lastName = "Last name contains invalid characters";
+    }
+
+    // Email validation
+    if (!email) {
+      newErrors.email = "Email is required";
+    } else if (!validateEmail(email)) {
+      newErrors.email = "Please enter a valid email address";
+    } else if (isSuspiciousEmail(email)) {
+      newErrors.email = "Please use a permanent email address";
+    }
+
+    // Subject validation
+    if (!subject || subject.length < 3) {
+      newErrors.subject = "Subject must be at least 3 characters";
+    } else if (subject.length > SECURITY_CONFIG.MAX_SUBJECT_LENGTH) {
+      newErrors.subject = `Subject must be less than ${SECURITY_CONFIG.MAX_SUBJECT_LENGTH} characters`;
+    }
+
+    // Message validation
+    if (!message || message.length < SECURITY_CONFIG.MIN_MESSAGE_LENGTH) {
+      newErrors.message = `Message must be at least ${SECURITY_CONFIG.MIN_MESSAGE_LENGTH} characters`;
+    } else if (message.length > SECURITY_CONFIG.MAX_MESSAGE_LENGTH) {
+      newErrors.message = `Message must be less than ${SECURITY_CONFIG.MAX_MESSAGE_LENGTH} characters`;
+    }
+
+    // SQL Injection detection
+    const allInputs = [firstName, lastName, email, subject, message].join(" ");
+    if (detectSQLInjection(allInputs)) {
+      toast.error("Suspicious input detected. Please check your message.", {
+        icon: <AlertCircle className="w-5 h-5" />,
+      });
+      return false;
+    }
+
+    // Spam detection
+    if (detectSpam(message) || detectSpam(subject)) {
+      newErrors.message = "Your message appears to be spam. Please revise it.";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // ============================================
+  // FORM SUBMIT HANDLER
+  // ============================================
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // Email.js ayarlarını kontrol et
+    // Çok hızlı submit engelleme (bot protection)
+    const now = Date.now();
+    if (now - submitTimestampRef.current < 2000) {
+      toast.error("Please wait a moment before submitting.");
+      return;
+    }
+    submitTimestampRef.current = now;
+
+    // Rate limiting kontrolü
+    if (!checkRateLimit()) {
+      return;
+    }
+
+    // Email.js ayarları kontrolü
     if (!EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID || !EMAILJS_PUBLIC_KEY) {
-      toast.error("Email configuration is missing. Please contact me directly via email.");
-      console.error("Missing Email.js configuration. Please check your environment variables.");
+      toast.error("Email configuration is missing. Please contact me directly.", {
+        description: "jcarymuhammedow@gmail.com",
+      });
+      console.error("Missing Email.js configuration");
+      return;
+    }
+
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+
+    // Honeypot kontrolü
+    if (!checkHoneypot(formData)) {
+      // Silent fail for bots
+      toast.success("Message sent successfully!");
+      form.reset();
+      return;
+    }
+
+    // Form validation
+    if (!validateForm(formData)) {
+      toast.error("Please fix the errors in the form.");
       return;
     }
 
     setIsSubmitting(true);
 
-    const form = e.currentTarget;
-    const formData = new FormData(form);
-
-    // Email.js'e gönderilecek parametreler
+    // Sanitize tüm inputlar
     const templateParams = {
-      from_name: formData.get("firstName") as string,
-      from_lastname: formData.get("lastName") as string,
-      from_email: formData.get("email") as string,
-      subject: formData.get("subject") as string,
-      message: formData.get("message") as string,
+      from_name: sanitizeInput(formData.get("firstName") as string),
+      from_lastname: sanitizeInput(formData.get("lastName") as string),
+      from_email: sanitizeInput(formData.get("email") as string),
+      subject: sanitizeInput(formData.get("subject") as string),
+      message: sanitizeInput(formData.get("message") as string),
+      timestamp: new Date().toISOString(),
+      user_agent: navigator.userAgent.substring(0, 100), // Limit for security
     };
 
     try {
-      // Email.js ile email gönderme
       const response = await emailjs.send(
         EMAILJS_SERVICE_ID,
         EMAILJS_TEMPLATE_ID,
@@ -62,17 +323,25 @@ const ContactSection = () => {
         EMAILJS_PUBLIC_KEY
       );
 
-      console.log("Email sent successfully:", response);
-      toast.success("Message sent successfully! I'll get back to you soon.");
-      form.reset(); // Formu temizle
+      console.log("Email sent successfully:", response.status);
+      toast.success("Message sent successfully! I'll get back to you soon.", {
+        description: "Usually responds within 24 hours",
+      });
+      form.reset();
+      setErrors({});
     } catch (error) {
       console.error("Email sending failed:", error);
-      toast.error("Failed to send message. Please try again or contact me directly at jcarymuhammedow@gmail.com");
+      toast.error("Failed to send message. Please try again later.", {
+        description: "Or contact me directly at jcarymuhammedow@gmail.com",
+      });
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  // ============================================
+  // CONTACT INFO & SOCIAL LINKS
+  // ============================================
   const contactInfo = [
     {
       icon: Mail,
@@ -176,6 +445,8 @@ const ContactSection = () => {
                     <motion.a
                       key={item.title}
                       href={item.link}
+                      target={item.link.startsWith('http') ? "_blank" : undefined}
+                      rel={item.link.startsWith('http') ? "noopener noreferrer" : undefined}
                       initial={{ opacity: 0, x: -20 }}
                       whileInView={{ opacity: 1, x: 0 }}
                       transition={{ duration: 0.4, delay: index * 0.1 }}
@@ -232,6 +503,7 @@ const ContactSection = () => {
                       viewport={{ once: true }}
                       whileHover={{ scale: 1.1, y: -2 }}
                       className={`p-3 glass-card rounded-full transition-all duration-300 ${social.color}`}
+                      aria-label={social.name}
                     >
                       <social.icon className="w-5 h-5" />
                     </motion.a>
@@ -249,121 +521,169 @@ const ContactSection = () => {
             >
               <Card className="glass-card border-luxury-gold/20">
                 <CardContent className="p-8">
-                  <h3 className="text-2xl font-semibold mb-6">
-                    Send Me a Message
-                  </h3>
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-2xl font-semibold">
+                      Send Me a Message
+                    </h3>
+                    <Shield className="w-5 h-5 text-luxury-gold"  />
+                  </div>
 
-                  <form onSubmit={handleSubmit} className="space-y-6">
+                  <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
+                    {/* Honeypot field - hidden from users */}
+                    <input
+                      type="text"
+                      name="website"
+                      tabIndex={-1}
+                      autoComplete="off"
+                      style={{
+                        position: "absolute",
+                        left: "-9999px",
+                        width: "1px",
+                        height: "1px",
+                      }}
+                      aria-hidden="true"
+                    />
+
                     <div className="grid md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="firstName">First Name</Label>
+                        <Label htmlFor="firstName">First Name *</Label>
                         <Input
                           id="firstName"
                           name="firstName"
                           placeholder="John"
-                          className="bg-background/50 border-luxury-gold/20 focus:border-luxury-gold"
+                          maxLength={SECURITY_CONFIG.MAX_NAME_LENGTH}
+                          className={`bg-background/50 border-luxury-gold/20 focus:border-luxury-gold ${
+                            errors.firstName ? "border-red-500" : ""
+                          }`}
                           required
-                          disabled={isSubmitting}
+                          disabled={isSubmitting || isBlocked}
+                          aria-invalid={!!errors.firstName}
+                          aria-describedby={errors.firstName ? "firstName-error" : undefined}
                         />
+                        {errors.firstName && (
+                          <p id="firstName-error" className="text-sm text-red-500 flex items-center gap-1">
+                            <AlertCircle className="w-4 h-4" />
+                            {errors.firstName}
+                          </p>
+                        )}
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="lastName">Last Name</Label>
+                        <Label htmlFor="lastName">Last Name *</Label>
                         <Input
                           id="lastName"
                           name="lastName"
                           placeholder="Doe"
-                          className="bg-background/50 border-luxury-gold/20 focus:border-luxury-gold"
+                          maxLength={SECURITY_CONFIG.MAX_NAME_LENGTH}
+                          className={`bg-background/50 border-luxury-gold/20 focus:border-luxury-gold ${
+                            errors.lastName ? "border-red-500" : ""
+                          }`}
                           required
-                          disabled={isSubmitting}
+                          disabled={isSubmitting || isBlocked}
+                          aria-invalid={!!errors.lastName}
+                          aria-describedby={errors.lastName ? "lastName-error" : undefined}
                         />
+                        {errors.lastName && (
+                          <p id="lastName-error" className="text-sm text-red-500 flex items-center gap-1">
+                            <AlertCircle className="w-4 h-4" />
+                            {errors.lastName}
+                          </p>
+                        )}
                       </div>
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
+                      <Label htmlFor="email">Email *</Label>
                       <Input
                         id="email"
                         name="email"
                         type="email"
                         placeholder="john@example.com"
-                        className="bg-background/50 border-luxury-gold/20 focus:border-luxury-gold"
+                        maxLength={SECURITY_CONFIG.MAX_EMAIL_LENGTH}
+                        className={`bg-background/50 border-luxury-gold/20 focus:border-luxury-gold ${
+                          errors.email ? "border-red-500" : ""
+                        }`}
                         required
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || isBlocked}
+                        aria-invalid={!!errors.email}
+                        aria-describedby={errors.email ? "email-error" : undefined}
                       />
+                      {errors.email && (
+                        <p id="email-error" className="text-sm text-red-500 flex items-center gap-1">
+                          <AlertCircle className="w-4 h-4" />
+                          {errors.email}
+                        </p>
+                      )}
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="subject">Subject</Label>
+                      <Label htmlFor="subject">Subject *</Label>
                       <Input
                         id="subject"
                         name="subject"
                         placeholder="Project Discussion"
-                        className="bg-background/50 border-luxury-gold/20 focus:border-luxury-gold"
+                        maxLength={SECURITY_CONFIG.MAX_SUBJECT_LENGTH}
+                        className={`bg-background/50 border-luxury-gold/20 focus:border-luxury-gold ${
+                          errors.subject ? "border-red-500" : ""
+                        }`}
                         required
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || isBlocked}
+                        aria-invalid={!!errors.subject}
+                        aria-describedby={errors.subject ? "subject-error" : undefined}
                       />
+                      {errors.subject && (
+                        <p id="subject-error" className="text-sm text-red-500 flex items-center gap-1">
+                          <AlertCircle className="w-4 h-4" />
+                          {errors.subject}
+                        </p>
+                      )}
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="message">Message</Label>
+                      <Label htmlFor="message">Message *</Label>
                       <Textarea
                         id="message"
                         name="message"
                         placeholder="Tell me about your project..."
                         rows={6}
-                        className="bg-background/50 border-luxury-gold/20 focus:border-luxury-gold resize-none"
+                        maxLength={SECURITY_CONFIG.MAX_MESSAGE_LENGTH}
+                        className={`bg-background/50 border-luxury-gold/20 focus:border-luxury-gold resize-none ${
+                          errors.message ? "border-red-500" : ""
+                        }`}
                         required
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || isBlocked}
+                        aria-invalid={!!errors.message}
+                        aria-describedby={errors.message ? "message-error" : undefined}
                       />
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>
+                          {errors.message && (
+                            <span id="message-error" className="text-red-500 flex items-center gap-1">
+                              <AlertCircle className="w-3 h-3" />
+                              {errors.message}
+                            </span>
+                          )}
+                        </span>
+                        <span>Max {SECURITY_CONFIG.MAX_MESSAGE_LENGTH} characters</span>
+                      </div>
                     </div>
 
                     <Button
                       type="submit"
-                      className="w-full luxury-gradient text-black font-semibold py-6 text-lg hover:shadow-2xl hover:shadow-luxury-gold/25 transition-all duration-300"
-                      disabled={isSubmitting}
+                      className="w-full luxury-gradient text-black font-semibold py-6 text-lg hover:shadow-2xl hover:shadow-luxury-gold/25 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled={isSubmitting || isBlocked}
                     >
                       <Send className="mr-2 h-5 w-5" />
-                      {isSubmitting ? "Sending..." : "Send Message"}
+                      {isSubmitting ? "Sending..." : isBlocked ? "Blocked" : "Send Message"}
                     </Button>
+
+                    <p className="text-xs text-muted-foreground text-center">
+                      Your information is protected and will never be shared.
+                    </p>
                   </form>
                 </CardContent>
               </Card>
             </motion.div>
           </div>
-
-          {/* Call to Action */}
-
-          {/* <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mt-20"
-          >
-            <Card className="glass-card border-luxury-gold/20 p-8 max-w-4xl mx-auto">
-              <h3 className="text-2xl font-semibold mb-4">
-                Ready to Start Your Project?
-              </h3>
-              <p className="text-muted-foreground mb-6 leading-relaxed">
-                From concept to deployment, I'll help you build something
-                extraordinary. Let's discuss your vision and turn it into
-                reality.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button className="luxury-gradient text-black font-semibold px-8 py-3">
-                  Schedule a Call
-                </Button>
-                <Button
-                  variant="outline"
-                  className="border-luxury-gold/30 text-luxury-gold hover:bg-luxury-gold/10 px-8 py-3"
-                >
-                  View My Work
-                </Button>
-              </div>
-            </Card>
-          </motion.div> */}
-
-
         </div>
       </div>
     </section>
