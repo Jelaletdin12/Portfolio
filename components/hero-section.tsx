@@ -11,7 +11,7 @@ import {
   Send,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
+import NeuralNoise from "./neural-noise";
 const HeroSection = () => {
   console.log("HeroSection component rendered");
 
@@ -50,11 +50,12 @@ const HeroSection = () => {
       id="home"
       className="min-h-screen flex items-center justify-center relative overflow-hidden"
     >
+      <NeuralNoise />
       {/* Background Elements */}
-      <div className="absolute inset-0 -z-10">
+      {/* <div className="absolute inset-0 -z-10">
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-luxury-gold/20 rounded-full blur-3xl animate-float" />
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-luxury-gold/10 rounded-full blur-3xl animate-float animation-delay-300" />
-      </div>
+      </div> */}
 
       <div className="section-padding w-full pt-20">
         <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
