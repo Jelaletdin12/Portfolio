@@ -26,11 +26,6 @@ const ProjectsSection = () => {
         github: "Private Repository",
         demo: "https://mm.com.tm",
       },
-      stats: {
-        users: "10K+",
-        uptime: "99.9%",
-        performance: "95",
-      },
     },
     {
       id: 2,
@@ -38,18 +33,19 @@ const ProjectsSection = () => {
       description:
         "A fully responsive front-end for a modern e-commerce platform, built with performance and scalability in mind.",
       image: "./postshop.png",
-      technologies: ["Next.js", "Tailwind", "Shadcn UI", "TypeScript", "Turbopack"],
+      technologies: [
+        "Next.js",
+        "Tailwind",
+        "Shadcn UI",
+        "TypeScript",
+        "Turbopack",
+      ],
       category: "E-commerce",
       featured: true,
       links: {
         live: "https://hyzmat.app",
         github: "Private Repository",
         demo: "https://hyzmat.app",
-      },
-      stats: {
-        users: "10K+",
-        uptime: "99.9%",
-        performance: "95",
       },
     },
     {
@@ -64,11 +60,6 @@ const ProjectsSection = () => {
       links: {
         live: "https://site.tonlike.com/",
         github: "Private Repository",
-      },
-      stats: {
-        accuracy: "94%",
-        dataPoints: "1M+",
-        speed: "2.3s",
       },
     },
     {
@@ -265,7 +256,7 @@ const ProjectsSection = () => {
                             <Button
                               size="sm"
                               className="luxury-gradient text-black"
-                              asChild 
+                              asChild
                             >
                               <a
                                 href={project.links.live}
@@ -316,23 +307,6 @@ const ProjectsSection = () => {
                             {project.description}
                           </p>
                         </div>
-
-                        {project.stats && (
-                          <div className="grid grid-cols-3 gap-4 mb-4 p-4 bg-muted/50 rounded-lg">
-                            {Object.entries(project.stats).map(
-                              ([key, value]) => (
-                                <div key={key} className="text-center">
-                                  <div className="text-lg font-bold text-luxury-gold">
-                                    {value}
-                                  </div>
-                                  <div className="text-xs text-muted-foreground capitalize">
-                                    {key}
-                                  </div>
-                                </div>
-                              )
-                            )}
-                          </div>
-                        )}
 
                         <div className="flex flex-wrap gap-2">
                           {project.technologies.map((tech, techIndex) => (
