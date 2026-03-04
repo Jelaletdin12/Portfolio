@@ -43,9 +43,9 @@ const ProjectsSection = () => {
       category: "E-commerce",
       featured: true,
       links: {
-        live: "https://hyzmat.app",
+        live: "https://shop.post.tm",
         github: "Private Repository",
-        demo: "https://hyzmat.app",
+        demo: "https://shop.post.tm",
       },
     },
     {
