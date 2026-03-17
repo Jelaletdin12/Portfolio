@@ -50,6 +50,27 @@ const ProjectsSection = () => {
     },
     {
       id: 3,
+      title: "Smart Elektronika - E-Commerce Platform",
+      description:
+        "A fully responsive front-end for a modern e-commerce platform, built with performance and scalability in mind.",
+      image: "./smartelektronika.png",
+      technologies: [
+        "Next.js",
+        "Tailwind",
+        "Shadcn UI",
+        "TypeScript",
+        "Turbopack",
+      ],
+      category: "E-commerce",
+      featured: true,
+      links: {
+        live: "https://smartelektronika.com/",
+        github: "Private Repository",
+        demo: "https://smartelektronika.com/",
+      },
+    },
+    {
+      id: 4,
       title: "The Like&Love Project",
       description:
         "A decentralized mining platform where users earn LIKE and LOVE tokens via NFTs without using device resources.",
@@ -63,7 +84,7 @@ const ProjectsSection = () => {
       },
     },
     {
-      id: 4,
+      id: 5,
       title: "AR Group Official Website",
       description:
         "The official website of AR Group. Provides general information about the company, contact details and information about sales points.",
@@ -77,7 +98,7 @@ const ProjectsSection = () => {
       },
     },
     {
-      id: 5,
+      id: 6,
       title: "Sanly.pro Official website",
       description:
         "A modern, responsive website for Sanly.pro, showcasing their services and portfolio with a focus on user experience and performance.",
@@ -91,7 +112,7 @@ const ProjectsSection = () => {
       },
     },
     {
-      id: 6,
+      id: 7,
       title: "Jussplay ",
       description:
         "A secure, transparent voting platform built on blockchain technology ensuring election integrity and voter privacy.",
@@ -105,7 +126,7 @@ const ProjectsSection = () => {
       },
     },
     {
-      id: 7,
+      id: 8,
       title: "SkySystem ",
       description:
         "E-commerce platform for tech products with user-friendly interface, secure payments, and efficient order management.",
@@ -118,7 +139,7 @@ const ProjectsSection = () => {
       },
     },
     {
-      id: 8,
+      id: 9,
       title: "Telegram app",
       description:
         "Telegram bet webapp. Users can place bets on various bet game events and win coins.",
@@ -131,7 +152,7 @@ const ProjectsSection = () => {
       },
     },
     {
-      id: 9,
+      id: 10,
       title: "Management System",
       description: "Inventory and Task Management System",
       image: "/invent.jpg",
