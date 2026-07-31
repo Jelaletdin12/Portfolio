@@ -26,14 +26,51 @@ const ProjectsSection = () => {
         github: "Private Repository",
         demo: "https://mm.com.tm",
       },
-      stats: {
-        users: "10K+",
-        uptime: "99.9%",
-        performance: "95",
-      },
     },
     {
       id: 2,
+      title: "Postshop - E-Commerce Platform",
+      description:
+        "A fully responsive front-end for a modern e-commerce platform, built with performance and scalability in mind.",
+      image: "./postshop.png",
+      technologies: [
+        "Next.js",
+        "Tailwind",
+        "Shadcn UI",
+        "TypeScript",
+        "Turbopack",
+      ],
+      category: "E-commerce",
+      featured: true,
+      links: {
+        live: "https://shop.post.tm",
+        github: "Private Repository",
+        demo: "https://shop.post.tm",
+      },
+    },
+    {
+      id: 3,
+      title: "Smart Elektronika - E-Commerce Platform",
+      description:
+        "A fully responsive front-end for a modern e-commerce platform, built with performance and scalability in mind.",
+      image: "./smartelektronika.png",
+      technologies: [
+        "Next.js",
+        "Tailwind",
+        "Shadcn UI",
+        "TypeScript",
+        "Turbopack",
+      ],
+      category: "E-commerce",
+      featured: true,
+      links: {
+        live: "https://smartelektronika.com/",
+        github: "Private Repository",
+        demo: "https://smartelektronika.com/",
+      },
+    },
+    {
+      id: 4,
       title: "The Like&Love Project",
       description:
         "A decentralized mining platform where users earn LIKE and LOVE tokens via NFTs without using device resources.",
@@ -45,14 +82,9 @@ const ProjectsSection = () => {
         live: "https://site.tonlike.com/",
         github: "Private Repository",
       },
-      stats: {
-        accuracy: "94%",
-        dataPoints: "1M+",
-        speed: "2.3s",
-      },
     },
     {
-      id: 3,
+      id: 5,
       title: "AR Group Official Website",
       description:
         "The official website of AR Group. Provides general information about the company, contact details and information about sales points.",
@@ -66,7 +98,7 @@ const ProjectsSection = () => {
       },
     },
     {
-      id: 4,
+      id: 6,
       title: "Sanly.pro Official website",
       description:
         "A modern, responsive website for Sanly.pro, showcasing their services and portfolio with a focus on user experience and performance.",
@@ -80,7 +112,7 @@ const ProjectsSection = () => {
       },
     },
     {
-      id: 5,
+      id: 7,
       title: "Jussplay ",
       description:
         "A secure, transparent voting platform built on blockchain technology ensuring election integrity and voter privacy.",
@@ -94,7 +126,7 @@ const ProjectsSection = () => {
       },
     },
     {
-      id: 6,
+      id: 8,
       title: "SkySystem ",
       description:
         "E-commerce platform for tech products with user-friendly interface, secure payments, and efficient order management.",
@@ -107,7 +139,7 @@ const ProjectsSection = () => {
       },
     },
     {
-      id: 7,
+      id: 9,
       title: "Telegram app",
       description:
         "Telegram bet webapp. Users can place bets on various bet game events and win coins.",
@@ -120,7 +152,7 @@ const ProjectsSection = () => {
       },
     },
     {
-      id: 8,
+      id: 10,
       title: "Management System",
       description: "Inventory and Task Management System",
       image: "/invent.jpg",
@@ -194,7 +226,9 @@ const ProjectsSection = () => {
               >
                 <Button
                   onClick={() => setSelectedCategory(category)}
-                  variant={selectedCategory === category ? "default" : "outline"}
+                  variant={
+                    selectedCategory === category ? "default" : "outline"
+                  }
                   className={`${
                     selectedCategory === category
                       ? "luxury-gradient text-black"
@@ -243,21 +277,37 @@ const ProjectsSection = () => {
                             <Button
                               size="sm"
                               className="luxury-gradient text-black"
+                              asChild
                             >
-                              <ExternalLink className="w-4 h-4 mr-2" />
-                              Live Demo
+                              <a
+                                href={project.links.live}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <ExternalLink className="w-4 h-4 mr-2" />
+                                Live Demo
+                              </a>
                             </Button>
                           )}
-                          {project.links.github && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-                            >
-                              <Github className="w-4 h-4 mr-2" />
-                              Code
-                            </Button>
-                          )}
+
+                          {project.links.github &&
+                            project.links.github !== "Private Repository" && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                                asChild
+                              >
+                                <a
+                                  href={project.links.github}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  <Github className="w-4 h-4 mr-2" />
+                                  Code
+                                </a>
+                              </Button>
+                            )}
                         </div>
                       </div>
 
@@ -278,23 +328,6 @@ const ProjectsSection = () => {
                             {project.description}
                           </p>
                         </div>
-
-                        {project.stats && (
-                          <div className="grid grid-cols-3 gap-4 mb-4 p-4 bg-muted/50 rounded-lg">
-                            {Object.entries(project.stats).map(
-                              ([key, value]) => (
-                                <div key={key} className="text-center">
-                                  <div className="text-lg font-bold text-luxury-gold">
-                                    {value}
-                                  </div>
-                                  <div className="text-xs text-muted-foreground capitalize">
-                                    {key}
-                                  </div>
-                                </div>
-                              )
-                            )}
-                          </div>
-                        )}
 
                         <div className="flex flex-wrap gap-2">
                           {project.technologies.map((tech, techIndex) => (
@@ -392,23 +425,39 @@ const ProjectsSection = () => {
                         </div>
 
                         <div className="flex space-x-2">
-                          {project.links.github && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="flex-1 text-xs"
-                            >
-                              <Github className="w-3 h-3 mr-1" />
-                              Code
-                            </Button>
-                          )}
+                          {project.links.github &&
+                            project.links.github !== "Private Repository" && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="flex-1 text-xs"
+                                asChild
+                              >
+                                <a
+                                  href={project.links.github}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  <Github className="w-3 h-3 mr-1" />
+                                  Code
+                                </a>
+                              </Button>
+                            )}
+
                           {project.links.live && (
                             <Button
                               size="sm"
                               className="flex-1 text-xs luxury-gradient text-black"
+                              asChild
                             >
-                              <ExternalLink className="w-3 h-3 mr-1" />
-                              Live
+                              <a
+                                href={project.links.live}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <ExternalLink className="w-3 h-3 mr-1" />
+                                Live
+                              </a>
                             </Button>
                           )}
                         </div>
