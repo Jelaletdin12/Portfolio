@@ -17,7 +17,7 @@ const ProjectsSection = () => {
       title: "MM Electroincs - E-Commerce Platform",
       description:
         "A fully responsive front-end for a modern e-commerce platform, built with performance and scalability in mind.",
-      image: "./MM.png",
+      image: "/MM.png",
       technologies: ["React", "SCSS", "Ant Design", "Redux Toolkit", "Vite"],
       category: "E-commerce",
       featured: true,
@@ -32,7 +32,7 @@ const ProjectsSection = () => {
       title: "Postshop - E-Commerce Platform",
       description:
         "A fully responsive front-end for a modern e-commerce platform, built with performance and scalability in mind.",
-      image: "./postshop.png",
+      image: "/postshop.png",
       technologies: [
         "Next.js",
         "Tailwind",
@@ -53,7 +53,7 @@ const ProjectsSection = () => {
       title: "Smart Elektronika - E-Commerce Platform",
       description:
         "A fully responsive front-end for a modern e-commerce platform, built with performance and scalability in mind.",
-      image: "./smartelektronika.png",
+      image: "/smartelektronika.png",
       technologies: [
         "Next.js",
         "Tailwind",
@@ -163,6 +163,51 @@ const ProjectsSection = () => {
         github: "https://github.com",
       },
     },
+   {
+    id: 11,
+    title: "Tmcars - Automotive & Marketplace Platform",
+    description:
+      "Turkmenistan's leading automotive and marketplace web application, built with a heavy focus on high traffic, fast data rendering, and smooth user experience.",
+    image: "/tmcars.png",
+    technologies: ["React", "Next.js", "Tailwind CSS", "Zustand", "REST API"],
+    category: "Marketplace",
+    featured: true,
+    links: {
+      live: "https://tmcars.info/",
+      // github: "Private Repository",
+      // demo: "https://tmcars.info/",
+    },
+  },
+  {
+    id: 12,
+    title: "Tmcars News - Content & Media Platform",
+    description:
+      "A dynamic, SEO-optimized news and editorial portal engineered for seamless content delivery, multi-language/category support, and high performance.",
+    image: "/news.png",
+    technologies: ["React", "Next.js", "Tailwind CSS"],
+    category: "News / Media",
+    featured: true,
+    links: {
+      live: "https://news.tmcars.info/tm/posts/habarlar",
+      // github: "Private Repository",
+      // demo: "https://news.tmcars.info/tm/posts/habarlar",
+    },
+  },
+  {
+  id: 13,
+  title: "App for Artist",
+  description:
+    "An intuitive dashboard and management portal designed for artists to upload music, manage track metadata, monitor streaming analytics, and control profile content.",
+  image: "/artist.png",
+  technologies: ["React", "Vite", "Zustand", "Tailwind CSS", "REST API"], 
+  category: "Dashboard",
+  featured: false,
+  links: {
+    live: "https://artist.aydym.com/",
+    // github: "Private Repository",
+    // demo: "https://artist.aydym.com/",
+  },
+}
   ];
 
   const categories = [

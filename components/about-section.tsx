@@ -35,8 +35,8 @@ const AboutSection = () => {
   ];
 
   const stats = [
-    { number: "8+", label: "Projects Completed" },
-    { number: "2+", label: "Years Experience" },
+    { number: "10+", label: "Projects Completed" },
+    { number: "3", label: "Years Experience" },
     { number: "15+", label: "Technologies" },
     { number: "99%", label: "Client Satisfaction" },
   ];
