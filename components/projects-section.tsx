@@ -207,6 +207,36 @@ const ProjectsSection = () => {
     // github: "Private Repository",
     // demo: "https://artist.aydym.com/",
   },
+},
+  {
+  id: 14,
+  title: "Elyeter Marketplace",
+  description:
+    "Elyeter is a modern e-commerce platform built with Next.js and Nest js. It features a user-friendly interface, secure payment processing, and efficient order management.",
+  image: "/elyeter.png",
+  technologies: ["Next.js", "Nest.js", "Tailwind CSS", "Nest.js", "Zustand", "REST API"], 
+  category: "E-commerce",
+  featured: false,
+  links: {
+    // live: "https://artist.aydym.com/",
+    // github: "Private Repository",
+    // demo: "https://artist.aydym.com/",
+  },
+},
+  {
+  id: 15,
+  title: "TBP Bank Dashboard",
+  description:
+    "An intuitive dashboard and management portal for TBP Bank",
+  image: "/bank.png",
+  technologies: ["React", "Vite", "Tanstack Query", "Zustand", "shadcn", "Tailwind CSS", "REST API"], 
+  category: "Dashboard",
+  featured: true,
+  links: {
+    // live: "https://artist.aydym.com/",
+    // github: "Private Repository",
+    // demo: "https://artist.aydym.com/",
+  },
 }
   ];
 
