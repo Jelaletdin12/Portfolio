@@ -10,13 +10,11 @@ import {
   Mail,
   Send,
 } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import NeuralNoise from "./neural-noise";
-const HeroSection = () => {
-  console.log("HeroSection component rendered");
+import NeuralNetworkVisual from "./neural-network-visual";
 
+const HeroSection = () => {
   const scrollToSection = (href: string) => {
-    console.log("Scrolling to section from hero:", href);
     const element = document.querySelector(href);
     if (element) {
       element.scrollIntoView({ behavior: "smooth" });
@@ -38,10 +36,12 @@ const HeroSection = () => {
     },
     {
       icon: Linkedin,
-      href: "https://linkedin.com/in/jelaletdin-çarymuhammedow-2b26a92b8",
+      // "ç" karakteri percent-encode edildi
+      href: "https://linkedin.com/in/jelaletdin-%C3%A7arymuhammedow-2b26a92b8",
       label: "LinkedIn",
     },
-    { icon: Mail, href: "mailto: jcarymuhammedow@gmail.com", label: "Email" },
+    // "mailto:" sonrasındaki boşluk kaldırıldı
+    { icon: Mail, href: "mailto:jcarymuhammedow@gmail.com", label: "Email" },
     { icon: Send, href: "https://t.me/Jelaletdin_Ch", label: "Telegram" },
   ];
 
@@ -51,11 +51,6 @@ const HeroSection = () => {
       className="min-h-screen flex items-center justify-center relative overflow-hidden"
     >
       <NeuralNoise />
-      {/* Background Elements */}
-      {/* <div className="absolute inset-0 -z-10">
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-luxury-gold/20 rounded-full blur-3xl animate-float" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-luxury-gold/10 rounded-full blur-3xl animate-float animation-delay-300" />
-      </div> */}
 
       <div className="section-padding w-full pt-20">
         <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
@@ -80,7 +75,7 @@ const HeroSection = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4, duration: 0.6 }}
-                className="text-[34px] md:text-7xl font-bold leading-tight"
+                className="text-[34px] md:text-6xl font-bold leading-tight"
               >
                 <span className="text-gradient">Jelaletdin</span>
                 <br />
@@ -105,12 +100,13 @@ const HeroSection = () => {
               transition={{ delay: 0.8, duration: 0.6 }}
               className="flex space-x-4"
             >
-              {socialLinks.map((social, index) => (
+              {socialLinks.map((social) => (
                 <motion.a
                   key={social.label}
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label={social.label}
                   whileHover={{ scale: 1.1, y: -2 }}
                   whileTap={{ scale: 0.95 }}
                   className="p-3 glass-card rounded-full hover:glow-effect transition-all duration-300"
@@ -145,26 +141,14 @@ const HeroSection = () => {
             </motion.div>
           </motion.div>
 
-          {/* Profile Image */}
+          {/* Neural network animation (eski avatarın yerine) */}
           <motion.div
             initial={{ opacity: 0, x: 50, scale: 0.8 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
             transition={{ duration: 0.8, ease: "easeOut", delay: 0.3 }}
             className="flex justify-center lg:justify-end"
           >
-            <div className="relative">
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                className="absolute inset-0 rounded-full bg-gradient-to-r from-luxury-gold/30 to-luxury-gold-dark/30 blur-sm scale-110"
-              />
-              <Avatar className="w-80 h-80 md:w-96 md:h-96 border-4 border-luxury-gold shadow-2xl shadow-luxury-gold/25">
-                <AvatarImage src="/api/placeholder/400/400" alt="Profile" />
-                <AvatarFallback className="text-6xl font-bold bg-gradient-to-br from-luxury-gold to-luxury-gold-dark text-black">
-                  J_CH
-                </AvatarFallback>
-              </Avatar>
-            </div>
+            <NeuralNetworkVisual />
           </motion.div>
         </div>
 
@@ -177,6 +161,7 @@ const HeroSection = () => {
         >
           <motion.button
             onClick={() => scrollToSection("#about")}
+            aria-label="Scroll to about section"
             animate={{ y: [0, 10, 0] }}
             transition={{ duration: 2, repeat: Infinity }}
             className="p-2 rounded-full glass-card hover:glow-effect transition-all duration-300"
