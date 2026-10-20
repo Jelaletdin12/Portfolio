@@ -32,6 +32,23 @@
     --luxury-gold: #d4af37;
     --luxury-gold-dark: #b8941f;
     --luxury-gradient: linear-gradient(135deg, var(--luxury-gold) 0%, var(--luxury-gold-dark) 100%);
+
+     --text-2: 215 18% 38%;
+  --gold-text: #7d6210;
+ 
+  /* 3D scene palette (HSL triplets, read by createCity.ts) */
+  --scene-ground: 210 40% 96%;
+  --scene-plaza: 214 24% 93%;
+  --scene-road: 214 20% 77%;
+  --scene-dash: 0 0% 100%;
+  --scene-tree: 138 42% 44%;
+  --scene-bldg-a: 0 0% 100%;
+  --scene-bldg-b: 214 24% 86%;
+  --scene-lm: 214 24% 90%;
+  --scene-lm-trim: 210 40% 8%;
+  --scene-glass: 215 30% 20%;
+  --scene-car: 4 78% 36%;
+  --scene-trim: 214 14% 72%;
   }
 
   .dark {
@@ -55,6 +72,23 @@
     --border: 0 0% 16%;
     --input: 0 0% 16%;
     --ring: 45 100% 51%;
+
+     color-scheme: dark;
+    --text-2: 0 0% 65%;
+  --gold-text: #d4af37;
+ 
+  --scene-ground: 0 0% 6%;
+  --scene-plaza: 0 0% 14%;
+  --scene-road: 0 0% 16%;
+  --scene-dash: 0 0% 34%;
+  --scene-tree: 140 40% 32%;
+  --scene-bldg-a: 0 0% 19%;
+  --scene-bldg-b: 0 0% 11%;
+  --scene-lm: 0 0% 22%;
+  --scene-lm-trim: 0 0% 8%;
+  --scene-glass: 215 18% 12%;
+  --scene-car: 4 74% 46%;
+  --scene-trim: 0 0% 80%;
   }
 }
 
@@ -70,8 +104,11 @@
   
   html {
     scroll-behavior: smooth;
-    overflow-x: hidden;
+    /* overflow-x: hidden; */
   }
+  @supports (overflow: clip) {
+  html { overflow-x: clip; }     /* sticky'yi bozmayan sürüm */
+}
 }
 
 @layer components {

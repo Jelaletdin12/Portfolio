@@ -69,7 +69,7 @@ export default function RootLayout({
         }}
       />
       <body
-        className={`${inter.variable} font-inter antialiased bg-background text-foreground overflow-x-hidden`}
+        className={`${inter.variable} font-inter antialiased bg-background text-foreground overflow-x-clip`}
       >
         <ThemeProvider
           attribute="class"
